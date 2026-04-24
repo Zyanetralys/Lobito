@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0c">
+<title>LOBO_VIRT // v3.0</title>
+<style>
+  body{margin:0;overflow:hidden;background:#0b0b10;cursor:crosshair;font-family:monospace;user-select:none;touch-action:none}
+  canvas{display:block;image-rendering:pixelated}
+  #hud{position:fixed;top:10px;left:10px;color:#4af;font-size:11px;pointer-events:none;background:rgba(10,10,14,0.92);padding:10px;border:1px solid #1a2a3a;border-radius:4px;max-width:260px;line-height:1.4}
+  .bar{display:inline-block;width:48px;height:4px;background:#112;border-radius:2px;overflow:hidden;vertical-align:middle;margin-right:4px}
+  .fill{height:100%;transition:width 0.15s linear}
+  #log{position:fixed;bottom:10px;left:10px;color:#556;font-size:10px;pointer-events:none}
+  #mute{position:fixed;top:10px;right:10px;color:#4af;background:#112;border:1px solid #233;padding:4px 8px;font-size:10px;cursor:pointer;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="hud">
+  ESTADO: <span id="st">ESPERA</span> | NIVEL: <span id="lvl">1</span> | XP: <span id="xp">0</span><br>
+  HAMBRE: <div class="bar"><div class="fill" id="hgF" style="width:100%;background:#f44"></div></div><span id="hg">100</span><br>
+  ÁNIMO: <div class="bar"><div class="fill" id="plF" style="width:100%;background:#4af"></div></div><span id="pl">100</span><br>
+  ENERGÍA: <div class="bar"><div class="fill" id="egF" style="width:100%;background:#4f4"></div></div><span id="eg">100</span><br>
+  <small>TOQUE/CLICK→COMER | DOBLE→JUGAR | MANTENER→CARICIA | S→DORMIR</small>
+</div>
+<button id="mute">🔇 AUDIO</button>
+<canvas id="c"></canvas>
+<div id="log">SISTEMA: ACTIVO</div>
+<script>
+'use strict';
+const C=document.getElementById('c'),X=C.getContext('2d');
+X.imageSmoothingEnabled=false;
+let W=innerWidth,H=innerHeight;
+const resize=()=>{W=C.width=innerWidth;H=C.height=innerHeight;};
+addEventListener('resize',resize);resize();
+
+// Sprite 10x10 (0=vacío,1=gris,2=oscuro,3=nariz,4=ojo)
+const B=[
+[0,0,1,1,0,0,1,1,0,0],[0,1,1,1,1,1,1,1,1,0],[1,1,2,1,4,4,1,2,1,1],
+[1,1,1,1,1,1,1,1,1,1],[0,1,1,3,3,1,1,1,1,0],[0,0,1,1,1,1,1,1,0,0],
+[0,0,0,1,1,1,1,0,0,0],[0,0,0,0,1,1,0,0,0,0],[0,0,0,0,1,0,0,0,0,0],[0,0,0,0,1,0,0,0,0,0]
+];
+const COL={1:'#8a8a9a',2:'#5a5a65',3:'#3a2a2a',4:'#eef'};
+const PS=5;
+
+// Estado centralizado
+const S={
+  p:{x:W/2,y:H/2-40,vx:0,vy:0,st:'idle',t:0,f:0,hg:100,pl:100,eg:100,xp:0,lvl:1,sleep:false},
+  m:{x:W/2,y:H/2},food:null,particles:[],pet:false,petT:0,muted:true,dayT:0,dt:0,lastT:performance.now(),
+  audioCtx:null,oscs:[]
+};
+
+// Input unificado (ratón + táctil)
+const setM=(ex,ey)=>{S.m.x=ex;S.m.y=ey};
+addEventListener('mousemove',e=>setM(e.clientX,e.clientY));
+addEventListener('touchmove',e=>{e.preventDefault();setM(e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
+addEventListener('click',e=>{if(!S.food&&S.p.st!=='sleep'){S.food={x:e.clientX,y:e.clientY};S.p.t=1;audio(440,0.1)}});
+addEventListener('dblclick',()=>{if(S.p.st!=='sleep'){S.p.st='play';S.p.t=90;S.p.pl=Math.min(100,S.p.pl+25);S.p.eg=Math.max(0,S.p.eg-5);audio(660,0.15);spawn(S.p.x,S.p.y-20,8,'#4af')}});
+addEventListener('keydown',e=>{if(e.key.toLowerCase()==='s'&&S.p.st!=='sleep'){S.p.st='sleep';S.p.t=300;S.p.eg=Math.min(100,S.p.eg+40);audio(330,0.2)}});
+const down=()=>S.pet=true;const up=()=>S.pet=false;
+addEventListener('mousedown',e=>{if(Math.hypot(e.clientX-S.p.x,e.clientY-S.p.y)<30*S.p.lvl)down()});
+addEventListener('mouseup',up);
+addEventListener('touchstart',e=>{const t=e.touches[0];if(Math.hypot(t.clientX-S.p.x,t.clientY-S.p.y)<30*S.p.lvl)down()});
+addEventListener('touchend',up);
+
+document.getElementById('mute').onclick=()=>{S.muted=!S.muted;document.getElementById('mute').textContent=S.muted?'🔇 AUDIO':'🔊 AUDIO';if(!S.muted&&S.muted)audio(1,0)};
+
+// Audio (Web Audio API, inicialización diferida)
+function audio(f,d){
+  if(S.muted||!f)return;
+  if(!S.audioCtx){try{S.audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch{S.muted=true;return}}
+  if(S.audioCtx.state==='suspended')S.audioCtx.resume();
+  const o=S.audioCtx.createOscillator(),g=S.audioCtx.createGain();
+  o.type='square';o.frequency.value=f;g.gain.value=0.03;
+  g.gain.exponentialRampToValueAtTime(0.001,S.audioCtx.currentTime+d);
+  o.connect(g);g.connect(S.audioCtx.destination);o.start();o.stop(S.audioCtx.currentTime+d);
+}
+
+// Pool de partículas
+const spawn=(px,py,n,col)=>{for(let i=0;i<n;i++){const p=S.particles.find(p=>!p.life);if(p){p.x=px;p.y=py;p.vx=(Math.random()-0.5)*4;p.vy=-Math.random()*3-1;p.life=30+Math.random()*20;p.col=col}else S.particles.push({x:px,y:py,vx:(Math.random()-0.5)*4,vy:-Math.random()*3-1,life:30+Math.random()*20,col,sz:2+Math.random()*2})}};
+
+// Guardar/Cargar versionado
+const save=()=>{try{localStorage.setItem('wolf_v3',JSON.stringify({v:1,hg:S.p.hg,pl:S.p.pl,eg:S.p.eg,xp:S.p.xp,lvl:S.p.lvl}))}catch{}};
+const load=()=>{try{const d=JSON.parse(localStorage.getItem('wolf_v3'));if(d&&d.v===1){S.p.hg=d.hg;S.p.pl=d.pl;S.p.eg=d.eg;S.p.xp=d.xp;S.p.lvl=d.lvl}}catch{}};
+setInterval(save,10000);load();
+
+// Loop principal (delta time estable)
+function loop(now){
+  S.dt=(now-S.lastT)/1000;S.lastT=now;S.dayT+=S.dt;
+  const dayPhase=Math.sin(S.dayT*0.05)*0.5+0.5;
+  const night=dayPhase<0.3;
+  
+  // Decaimiento
+  if(!S.p.sleep){S.p.hg=Math.max(0,S.p.hg-0.015*S.dt);S.p.pl=Math.max(0,S.p.pl-0.01*S.dt);S.p.eg=Math.max(0,S.p.eg-0.008*S.dt)}
+  if(S.pet&&S.p.st!=='sleep'){S.petT++;if(S.petT>20){S.p.pl=Math.min(100,S.p.pl+0.5*S.dt);S.p.xp+=0.2*S.dt;audio(550,0.05);if(S.petT%10===0)spawn(S.p.x,S.p.y-15,1,'#fa0')}}
+  
+  // Estados
+  if(S.p.t>0)S.p.t--;else if(S.p.st!=='idle'&&!S.p.sleep)S.p.st='idle';
+  if(S.p.hg<20&&S.p.st==='idle')S.p.st='beg';
+  if(S.p.eg<=0&&S.p.st!=='sleep'){S.p.st='sleep';S.p.t=200;audio(220,0.3)}
+  if(S.p.st==='sleep'){S.p.eg=Math.min(100,S.p.eg+0.4*S.dt);if(S.p.t<=0)S.p.st='idle'}
+  else{
+    let dx=S.m.x-S.p.x,dy=S.m.y-S.p.y,d=Math.hypot(dx,dy);
+    const spd=S.p.hg<30?0.4:0.8;
+    if(d>20&&(S.p.st==='idle'||S.p.st==='follow'||S.p.st==='beg')){S.p.vx+=dx*0.001*S.p.lvl*S.p.dt;S.p.vy+=dy*0.001*S.p.lvl*S.p.dt;S.p.st='follow'}
+    if(S.p.st==='eat'&&S.food){S.p.vx+=(S.food.x-S.p.x)*0.05*S.p.dt;S.p.vy+=(S.food.y-S.p.y)*0.05*S.p.dt;S.p.st='eat';if(Math.hypot(S.p.x-S.food.x,S.p.y-S.food.y)<15){S.p.hg=Math.min(100,S.p.hg+25);S.p.xp+=8;S.p.pl=Math.min(100,S.p.pl+5);S.food=null;audio(880,0.1);spawn(S.p.x,S.p.y,6,'#f44');S.p.st='idle'}}
+  }
+  if(S.p.st==='play'){S.p.xp+=0.3*S.dt;S.p.f+=0.1*S.p.lvl*S.dt}
+  
+  // Física
+  S.p.vx*=0.92;S.p.vy*=0.92;S.p.x+=S.p.vx*S.p.dt*60;S.p.y+=S.p.vy*S.p.dt*60;
+  S.p.x=Math.max(20,Math.min(W-20,S.p.x));S.p.y=Math.max(40,Math.min(H-40,S.p.y));
+  S.p.f+=0.1*S.p.lvl*S.dt;
+  
+  // Partículas
+  S.particles.forEach(p=>{if(p.life>0){p.x+=p.vx;p.y+=p.vy;p.vy+=0.15;p.life-=S.dt*60}});
+  S.particles=S.particles.filter(p=>p.life>0);
+  
+  // Level up
+  if(S.p.xp>=S.p.lvl*50){S.p.lvl++;S.p.xp=0;audio(990,0.2);spawn(S.p.x,S.p.y,15,'#fa0');document.getElementById('log').textContent=`SISTEMA: ASCENSO NIVEL ${S.p.lvl}`}
+  
+  // Render
+  X.clearRect(0,0,W,H);
+  X.fillStyle=night?'#08080c':'#0d0d12';X.fillRect(0,0,W,H);
+  X.fillStyle=night?'rgba(30,30,50,0.8)':'rgba(20,20,30,0.6)';X.fillRect(0,H-20,W,20);
+  
+  // Sombra
+  X.fillStyle='rgba(0,0,0,0.25)';X.beginPath();X.ellipse(S.p.x,H-20,14*S.p.lvl,5*S.p.lvl,0,0,Math.PI*2);X.fill();
+  
+  // Lobo
+  X.save();X.translate(S.p.x,S.p.y);X.scale(PS*S.p.lvl/2,PS*S.p.lvl/2);X.translate(-5,-5);
+  if(S.p.vx<-0.5)X.scale(-1,1);
+  const bounce=S.p.st==='follow'||S.p.st==='play'?Math.sin(S.p.f*2.5)*0.6:0;
+  const mouth=S.p.st==='eat'&&S.p.t>20?1:0;
+  const leg=(S.p.st==='follow'||S.p.st==='play')?Math.floor(S.p.f*2)%2:0;
+  for(let r=0;r<10;r++)for(let cl=0;cl<10;cl++){
+    const v=B[r][cl];if(!v)continue;
+    const ox=leg&&r>6?(cl%2?0.6:-0.6):0;
+    const oy=mouth&&r>4?(r>5?1:0.4):0;
+    X.fillStyle=COL[v];X.fillRect(cl+ox,r+bounce+oy,1,1);
+  }
+  X.restore();
+  
+  // UI elementos
+  if(S.food){X.fillStyle='#f44';X.beginPath();X.arc(S.food.x,S.food.y,6,0,Math.PI*2);X.fill()}
+  if(S.p.st==='sleep'){X.fillStyle='#fff';X.font='10px monospace';X.fillText('Zzz',S.p.x+12,S.p.y-15)}
+  if(S.pet){X.fillStyle='#fa0';X.font='9px monospace';X.fillText('♥',S.p.x+10,S.p.y-8)}
+  X.globalAlpha=0.8;S.particles.forEach(p=>{X.fillStyle=p.col;X.fillRect(p.x,p.y,p.sz,p.sz)});X.globalAlpha=1;
+  
+  // HUD
+  document.getElementById('st').textContent=S.p.st.toUpperCase();
+  document.getElementById('hg').textContent=Math.floor(S.p.hg);document.getElementById('hgF').style.width=S.p.hg+'%';
+  document.getElementById('pl').textContent=Math.floor(S.p.pl);document.getElementById('plF').style.width=S.p.pl+'%';
+  document.getElementById('eg').textContent=Math.floor(S.p.eg);document.getElementById('egF').style.width=S.p.eg+'%';
+  document.getElementById('xp').textContent=Math.floor(S.p.xp);document.getElementById('lvl').textContent=S.p.lvl;
+  
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
