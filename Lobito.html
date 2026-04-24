@@ -2,161 +2,240 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0a0a0c">
-<title>LOBO_VIRT // v3.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MARÍA JESÚS MARTÍNEZ LEO | CIBERSEGURIDAD & SISTEMAS</title>
+<meta name="description" content="CV técnico - Ciberseguridad, Sistemas, IT Recruitment">
 <style>
-  body{margin:0;overflow:hidden;background:#0b0b10;cursor:crosshair;font-family:monospace;user-select:none;touch-action:none}
-  canvas{display:block;image-rendering:pixelated}
-  #hud{position:fixed;top:10px;left:10px;color:#4af;font-size:11px;pointer-events:none;background:rgba(10,10,14,0.92);padding:10px;border:1px solid #1a2a3a;border-radius:4px;max-width:260px;line-height:1.4}
-  .bar{display:inline-block;width:48px;height:4px;background:#112;border-radius:2px;overflow:hidden;vertical-align:middle;margin-right:4px}
-  .fill{height:100%;transition:width 0.15s linear}
-  #log{position:fixed;bottom:10px;left:10px;color:#556;font-size:10px;pointer-events:none}
-  #mute{position:fixed;top:10px;right:10px;color:#4af;background:#112;border:1px solid #233;padding:4px 8px;font-size:10px;cursor:pointer;border-radius:3px}
+  :root{--bg:#0a0a0c;--fg:#e0e0e0;--accent:#4af;--muted:#667;--card:#111318}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:monospace;background:var(--bg);color:var(--fg);line-height:1.5;padding:20px;max-width:900px;margin:0 auto;font-size:14px}
+  h1{font-size:1.4rem;border-bottom:2px solid var(--accent);padding-bottom:8px;margin-bottom:12px}
+  h2{font-size:1.1rem;color:var(--accent);margin:20px 0 8px;border-left:3px solid var(--accent);padding-left:10px}
+  h3{font-size:1rem;color:var(--fg);margin:12px 0 4px}
+  .meta{color:var(--muted);font-size:0.95rem;margin-bottom:16px}
+  .meta a{color:var(--accent);text-decoration:none}
+  .meta a:hover{text-decoration:underline}
+  .section{margin-bottom:24px;padding:12px;background:var(--card);border-radius:4px;border:1px solid #223}
+  .job{margin-bottom:16px;padding-left:12px;border-left:2px solid #334}
+  .job-title{font-weight:bold;color:var(--fg)}
+  .job-company{color:var(--accent)}
+  .job-date{color:var(--muted);font-size:0.9rem}
+  .cert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+  .cert{font-size:0.85rem;padding:4px 8px;background:#1a1c22;border-radius:3px;border:1px solid #2a2d35}
+  .stack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+  .stack-cat h4{color:var(--accent);margin-bottom:6px;font-size:0.95rem}
+  .stack-cat ul{list-style:none;padding-left:0;font-size:0.9rem;color:var(--muted)}
+  .stack-cat li{margin:2px 0}
+  .avail{background:#1a1f2a;padding:12px;border-radius:4px;border:1px dashed var(--accent);font-size:0.95rem}
+  .avail span{display:block;margin:4px 0}
+  hr{border:0;border-top:1px dashed #334;margin:24px 0}
+  @media(max-width:600px){.cert-grid,.stack-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div id="hud">
-  ESTADO: <span id="st">ESPERA</span> | NIVEL: <span id="lvl">1</span> | XP: <span id="xp">0</span><br>
-  HAMBRE: <div class="bar"><div class="fill" id="hgF" style="width:100%;background:#f44"></div></div><span id="hg">100</span><br>
-  ÁNIMO: <div class="bar"><div class="fill" id="plF" style="width:100%;background:#4af"></div></div><span id="pl">100</span><br>
-  ENERGÍA: <div class="bar"><div class="fill" id="egF" style="width:100%;background:#4f4"></div></div><span id="eg">100</span><br>
-  <small>TOQUE/CLICK→COMER | DOBLE→JUGAR | MANTENER→CARICIA | S→DORMIR</small>
+
+<h1>MARÍA JESÚS MARTÍNEZ LEO</h1>
+<div class="meta">
+  <strong>CIBERSEGURIDAD & SISTEMAS</strong><br>
+  Madrid / Cádiz, España • 
+  <a href="https://www.linkedin.com/in/mjmal/" target="_blank">linkedin.com/in/mjmal</a> • 
+  <a href="https://github.com/Zyanetralys" target="_blank">github.com/Zyanetralys</a><br>
+  Inglés: C1 (Avanzado) • Carnet: B y A2
 </div>
-<button id="mute">🔇 AUDIO</button>
-<canvas id="c"></canvas>
-<div id="log">SISTEMA: ACTIVO</div>
+
+<div class="section">
+  <h2>EXPERIENCIA TÉCNICA</h2>
+  
+  <div class="job">
+    <div class="job-title">Consultora Especialista IT</div>
+    <div class="job-company"><a href="https://www.alvatross.io/" target="_blank">Alvatross</a> | Telecomunicaciones</div>
+    <div class="job-date">FEB 2026 – ACT</div>
+    <ul>
+      <li>Colaboración con equipos DevOps, desarrollo y sistemas en entornos OSS/BSS</li>
+      <li>Validación técnica de stacks, arquitecturas y competencias</li>
+      <li>Definición de requisitos técnicos y documentación en Confluence</li>
+      <li>Soporte a proyectos IT y coordinación con áreas de sistemas</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-title">Consultora Especialista IT</div>
+    <div class="job-company"><a href="https://www.atm-maggioli.es/" target="_blank">ATM Grupo Maggioli</a> | Admin. Pública</div>
+    <div class="job-date">FEB 2023 – FEB 2026</div>
+    <ul>
+      <li>Análisis funcional y técnico de perfiles IT en entornos regulados</li>
+      <li>Participación en implementación ISO 27001 y ENS</li>
+      <li>Coordinación con equipos de ciberseguridad, datos e implantaciones</li>
+      <li>Onboarding técnico y validación de competencias</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-title">Soporte Backend (Prácticas)</div>
+    <div class="job-company">ATM Grupo Maggioli</div>
+    <div class="job-date">ENE – JUN 2025</div>
+    <ul>
+      <li>Scripts Python para automatización y mantenimiento</li>
+      <li>Consultas SQL (PostgreSQL/MySQL) para extracción y validación de datos</li>
+      <li>Soporte nivel 2, resolución de incidencias y documentación técnica</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-title">Analista de Ciberseguridad</div>
+    <div class="job-company">NoCountry | Proyecto Fintech</div>
+    <div class="job-date">SEP – DIC 2025</div>
+    <ul>
+      <li>Escaneo de vulnerabilidades web (OWASP ZAP) y análisis SAST</li>
+      <li>Guías de cifrado, autenticación y protección de datos</li>
+      <li>Automatización de tareas de seguridad con Python</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-title">Técnico de Sistemas</div>
+    <div class="job-company"><a href="https://gruposermicro.com/" target="_blank">Sermicro</a></div>
+    <div class="job-date">NOV – DIC 2023</div>
+    <ul>
+      <li>Soporte N1/N2 Windows, ticketing y resolución de incidencias 24/7</li>
+      <li>Administración de Active Directory, GPO, DNS, DHCP</li>
+      <li>Instalación y configuración de sistemas y software</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-title">Técnico de Sistemas</div>
+    <div class="job-company"><a href="https://www.juntadeandalucia.es/" target="_blank">Red Guadalinfo</a> | Junta de Andalucía</div>
+    <div class="job-date">ENE – MAY 2021</div>
+    <ul>
+      <li>Gestión de usuarios Windows/Linux (Guadalinex)</li>
+      <li>Configuración de servicios de red: DNS, DHCP, GPO</li>
+      <li>Mantenimiento de redes LAN/WiFi y soporte a usuarios</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section">
+  <h2>FORMACIÓN</h2>
+  <ul>
+    <li><strong>Máster en Ciberseguridad</strong> - UCAM (2025) | 1.500h • 60 ECTS</li>
+    <li><strong>Máster en Big Data & Business Intelligence</strong> - Universidad Isabel I (2025) | 1.800h • 72 ECTS</li>
+    <li><strong>Máster en Dirección de Proyectos</strong> - Universidad Isabel I (2025) | 1.500h • 60 ECTS</li>
+    <li><strong>Grado Superior en ASIR</strong> - Ilerna (2025) | 2.000h • 120 ECTS</li>
+    <li><strong>Grado Superior en DAM</strong> (Cursando) - Ilerna</li>
+    <li><strong>Técnico en Ciberseguridad</strong> - INCIBE (2024) | 250h</li>
+    <li><strong>Grado en Sistemas Microinformáticos y Redes</strong> - Ilerna (2021) | 2.000h</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>STACK TÉCNICO</h2>
+  <div class="stack-grid">
+    <div class="stack-cat">
+      <h4>SYSTEMS</h4>
+      <ul><li>Windows Server, AD, GPO, IIS</li><li>Linux: Kali, Ubuntu, Arch</li><li>VMware, VirtualBox</li></ul>
+    </div>
+    <div class="stack-cat">
+      <h4>REDES</h4>
+      <ul><li>TCP/IP, DNS, DHCP, VLANs</li><li>VPN, pfSense, OPNsense</li><li>Firewalls, DMZ</li></ul>
+    </div>
+    <div class="stack-cat">
+      <h4>DEV</h4>
+      <ul><li>Python, Bash, PowerShell</li><li>Git, HTML/CSS, JS/TS, Java</li><li>PostgreSQL, MySQL</li></ul>
+    </div>
+    <div class="stack-cat">
+      <h4>SEC</h4>
+      <ul><li>Nmap, Wireshark, OWASP ZAP</li><li>Metasploit, Hydra, Ghidra</li><li>ISO 27001, ENS, RGPD</li></ul>
+    </div>
+    <div class="stack-cat">
+      <h4>TOOLS</h4>
+      <ul><li>Jira, Confluence, NinjaOne</li><li>HTB, TryHackMe, VulnHub</li><li>Docker, Azure (AZ-204)</li></ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>CERTIFICACIONES</h2>
+  <h3 style="color:var(--accent);margin-top:12px">CIBERSEGURIDAD</h3>
+  <div class="cert-grid">
+    <span class="cert">ISO 27001:2022 Lead Auditor</span>
+    <span class="cert">CTIGA Security Associate</span>
+    <span class="cert">C-OSIA OSINT Analyst</span>
+    <span class="cert">CRPO Ransomware Protection</span>
+    <span class="cert">CSCSO Cyber Security Officer</span>
+    <span class="cert">CCSC Cybersecurity Career Starter</span>
+    <span class="cert">OSForensics Triage</span>
+    <span class="cert">CyberSOC N1</span>
+    <span class="cert">Resility Threat Hunting</span>
+    <span class="cert">ICS300 Industrial Control Systems</span>
+    <span class="cert">PMJ Ethical Hacking</span>
+    <span class="cert">Pentesting Pro HackerMentor</span>
+    <span class="cert">8dot8 Bug Bounty</span>
+    <span class="cert">LionxSecurity Ethical Hacker</span>
+    <span class="cert">Cisco NDE</span>
+    <span class="cert">EC-Council SQL Injection / XSS</span>
+    <span class="cert">Linux Foundation Cybersecurity Essentials</span>
+    <span class="cert">C1b3rwall CNP 2023, 2025</span>
+    <span class="cert">Cisco Switching CCNP</span>
+    <span class="cert">Adams Soporte IT Profesional</span>
+    <span class="cert">Fundae Protección de Datos</span>
+  </div>
+  
+  <h3 style="color:var(--accent);margin:16px 0 8px">DESARROLLO & CLOUD</h3>
+  <div class="cert-grid">
+    <span class="cert">AZ-204 Azure</span>
+    <span class="cert">Python Backend IBM (Flask/Django)</span>
+    <span class="cert">Django Masterclass Código Facilito</span>
+    <span class="cert">Flask IBM</span>
+    <span class="cert">PHP & MySQL Euroformac</span>
+    <span class="cert">Docker Código Facilito</span>
+    <span class="cert">Git Código Facilito</span>
+    <span class="cert">Front-End Web Smartmind</span>
+    <span class="cert">Full Stack Data Science TPoint</span>
+    <span class="cert">Administración Sistemas IT Fundae</span>
+  </div>
+  
+  <h3 style="color:var(--accent);margin:16px 0 8px">GESTIÓN & OTROS</h3>
+  <div class="cert-grid">
+    <span class="cert">PMI Gestión Proyectos/Programas</span>
+    <span class="cert">Six Sigma Green Belt</span>
+    <span class="cert">SLA IT LinkedIn Learning</span>
+    <span class="cert">IT Recruitment TOP Scorer 2025</span>
+    <span class="cert">Piloto Dron UAS A1/A3 AESA</span>
+    <span class="cert">Técnico Protección Civil UCJC (425h)</span>
+    <span class="cert">Psicología del Deporte COI</span>
+    <span class="cert">Psicólogo Crisis y Emergencias UCJC</span>
+    <span class="cert">Coaching Ejecutivo Udemy/EBS</span>
+    <span class="cert">PNL Master Practitioner iGNLP</span>
+  </div>
+</div>
+
+<div class="section">
+  <h2>LABORATORIOS & COMUNIDADES</h2>
+  <ul>
+    <li><strong>GitHub:</strong> Zyanetralys — Python, automatización, pentesting, Java, SQL</li>
+    <li><strong>Blue Team:</strong> Let'sDefend, CyberDefenders, SOC 101</li>
+    <li><strong>CTF/Pentesting:</strong> HackTheBox, TryHackMe, VulnHub, PicoCTF, OverTheWire, Root-Me</li>
+    <li><strong>Comunidades:</strong> XSec, C1b3rwall, DragonJAR, UnderC0de, Women IT, CyberRangers</li>
+  </ul>
+</div>
+
+<div class="section avail">
+  <h2 style="margin:0 0 8px">DISPONIBILIDAD</h2>
+  <span>[+] REMOTO / HÍBRIDO / PRESENCIAL</span>
+  <span>[+] MADRID / CÁDIZ / MOVILIDAD NACIONAL</span>
+  <span>[+] INCORPORACIÓN INMEDIATA</span>
+</div>
+
+<hr>
+
+<!-- LOBO_VIRT // CV_MASCOT v4.1 -->
+<div id="wolf-ctrl" style="position:fixed;bottom:22px;right:22px;z-index:999;font-family:monospace;font-size:10px;color:#4af;cursor:pointer;user-select:none;opacity:0.9;pointer-events:all;background:#112;border:1px solid #233;padding:4px 8px;border-radius:3px">🐺 [MUTE]</div>
+<canvas id="wolf-c" width="64" height="64" style="position:fixed;bottom:20px;right:20px;z-index:998;image-rendering:pixelated;cursor:crosshair;pointer-events:all;opacity:0.85;"></canvas>
 <script>
-'use strict';
-const C=document.getElementById('c'),X=C.getContext('2d');
-X.imageSmoothingEnabled=false;
-let W=innerWidth,H=innerHeight;
-const resize=()=>{W=C.width=innerWidth;H=C.height=innerHeight;};
-addEventListener('resize',resize);resize();
-
-// Sprite 10x10 (0=vacío,1=gris,2=oscuro,3=nariz,4=ojo)
-const B=[
-[0,0,1,1,0,0,1,1,0,0],[0,1,1,1,1,1,1,1,1,0],[1,1,2,1,4,4,1,2,1,1],
-[1,1,1,1,1,1,1,1,1,1],[0,1,1,3,3,1,1,1,1,0],[0,0,1,1,1,1,1,1,0,0],
-[0,0,0,1,1,1,1,0,0,0],[0,0,0,0,1,1,0,0,0,0],[0,0,0,0,1,0,0,0,0,0],[0,0,0,0,1,0,0,0,0,0]
-];
-const COL={1:'#8a8a9a',2:'#5a5a65',3:'#3a2a2a',4:'#eef'};
-const PS=5;
-
-// Estado centralizado
-const S={
-  p:{x:W/2,y:H/2-40,vx:0,vy:0,st:'idle',t:0,f:0,hg:100,pl:100,eg:100,xp:0,lvl:1,sleep:false},
-  m:{x:W/2,y:H/2},food:null,particles:[],pet:false,petT:0,muted:true,dayT:0,dt:0,lastT:performance.now(),
-  audioCtx:null,oscs:[]
-};
-
-// Input unificado (ratón + táctil)
-const setM=(ex,ey)=>{S.m.x=ex;S.m.y=ey};
-addEventListener('mousemove',e=>setM(e.clientX,e.clientY));
-addEventListener('touchmove',e=>{e.preventDefault();setM(e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
-addEventListener('click',e=>{if(!S.food&&S.p.st!=='sleep'){S.food={x:e.clientX,y:e.clientY};S.p.t=1;audio(440,0.1)}});
-addEventListener('dblclick',()=>{if(S.p.st!=='sleep'){S.p.st='play';S.p.t=90;S.p.pl=Math.min(100,S.p.pl+25);S.p.eg=Math.max(0,S.p.eg-5);audio(660,0.15);spawn(S.p.x,S.p.y-20,8,'#4af')}});
-addEventListener('keydown',e=>{if(e.key.toLowerCase()==='s'&&S.p.st!=='sleep'){S.p.st='sleep';S.p.t=300;S.p.eg=Math.min(100,S.p.eg+40);audio(330,0.2)}});
-const down=()=>S.pet=true;const up=()=>S.pet=false;
-addEventListener('mousedown',e=>{if(Math.hypot(e.clientX-S.p.x,e.clientY-S.p.y)<30*S.p.lvl)down()});
-addEventListener('mouseup',up);
-addEventListener('touchstart',e=>{const t=e.touches[0];if(Math.hypot(t.clientX-S.p.x,t.clientY-S.p.y)<30*S.p.lvl)down()});
-addEventListener('touchend',up);
-
-document.getElementById('mute').onclick=()=>{S.muted=!S.muted;document.getElementById('mute').textContent=S.muted?'🔇 AUDIO':'🔊 AUDIO';if(!S.muted&&S.muted)audio(1,0)};
-
-// Audio (Web Audio API, inicialización diferida)
-function audio(f,d){
-  if(S.muted||!f)return;
-  if(!S.audioCtx){try{S.audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch{S.muted=true;return}}
-  if(S.audioCtx.state==='suspended')S.audioCtx.resume();
-  const o=S.audioCtx.createOscillator(),g=S.audioCtx.createGain();
-  o.type='square';o.frequency.value=f;g.gain.value=0.03;
-  g.gain.exponentialRampToValueAtTime(0.001,S.audioCtx.currentTime+d);
-  o.connect(g);g.connect(S.audioCtx.destination);o.start();o.stop(S.audioCtx.currentTime+d);
-}
-
-// Pool de partículas
-const spawn=(px,py,n,col)=>{for(let i=0;i<n;i++){const p=S.particles.find(p=>!p.life);if(p){p.x=px;p.y=py;p.vx=(Math.random()-0.5)*4;p.vy=-Math.random()*3-1;p.life=30+Math.random()*20;p.col=col}else S.particles.push({x:px,y:py,vx:(Math.random()-0.5)*4,vy:-Math.random()*3-1,life:30+Math.random()*20,col,sz:2+Math.random()*2})}};
-
-// Guardar/Cargar versionado
-const save=()=>{try{localStorage.setItem('wolf_v3',JSON.stringify({v:1,hg:S.p.hg,pl:S.p.pl,eg:S.p.eg,xp:S.p.xp,lvl:S.p.lvl}))}catch{}};
-const load=()=>{try{const d=JSON.parse(localStorage.getItem('wolf_v3'));if(d&&d.v===1){S.p.hg=d.hg;S.p.pl=d.pl;S.p.eg=d.eg;S.p.xp=d.xp;S.p.lvl=d.lvl}}catch{}};
-setInterval(save,10000);load();
-
-// Loop principal (delta time estable)
-function loop(now){
-  S.dt=(now-S.lastT)/1000;S.lastT=now;S.dayT+=S.dt;
-  const dayPhase=Math.sin(S.dayT*0.05)*0.5+0.5;
-  const night=dayPhase<0.3;
-  
-  // Decaimiento
-  if(!S.p.sleep){S.p.hg=Math.max(0,S.p.hg-0.015*S.dt);S.p.pl=Math.max(0,S.p.pl-0.01*S.dt);S.p.eg=Math.max(0,S.p.eg-0.008*S.dt)}
-  if(S.pet&&S.p.st!=='sleep'){S.petT++;if(S.petT>20){S.p.pl=Math.min(100,S.p.pl+0.5*S.dt);S.p.xp+=0.2*S.dt;audio(550,0.05);if(S.petT%10===0)spawn(S.p.x,S.p.y-15,1,'#fa0')}}
-  
-  // Estados
-  if(S.p.t>0)S.p.t--;else if(S.p.st!=='idle'&&!S.p.sleep)S.p.st='idle';
-  if(S.p.hg<20&&S.p.st==='idle')S.p.st='beg';
-  if(S.p.eg<=0&&S.p.st!=='sleep'){S.p.st='sleep';S.p.t=200;audio(220,0.3)}
-  if(S.p.st==='sleep'){S.p.eg=Math.min(100,S.p.eg+0.4*S.dt);if(S.p.t<=0)S.p.st='idle'}
-  else{
-    let dx=S.m.x-S.p.x,dy=S.m.y-S.p.y,d=Math.hypot(dx,dy);
-    const spd=S.p.hg<30?0.4:0.8;
-    if(d>20&&(S.p.st==='idle'||S.p.st==='follow'||S.p.st==='beg')){S.p.vx+=dx*0.001*S.p.lvl*S.p.dt;S.p.vy+=dy*0.001*S.p.lvl*S.p.dt;S.p.st='follow'}
-    if(S.p.st==='eat'&&S.food){S.p.vx+=(S.food.x-S.p.x)*0.05*S.p.dt;S.p.vy+=(S.food.y-S.p.y)*0.05*S.p.dt;S.p.st='eat';if(Math.hypot(S.p.x-S.food.x,S.p.y-S.food.y)<15){S.p.hg=Math.min(100,S.p.hg+25);S.p.xp+=8;S.p.pl=Math.min(100,S.p.pl+5);S.food=null;audio(880,0.1);spawn(S.p.x,S.p.y,6,'#f44');S.p.st='idle'}}
-  }
-  if(S.p.st==='play'){S.p.xp+=0.3*S.dt;S.p.f+=0.1*S.p.lvl*S.dt}
-  
-  // Física
-  S.p.vx*=0.92;S.p.vy*=0.92;S.p.x+=S.p.vx*S.p.dt*60;S.p.y+=S.p.vy*S.p.dt*60;
-  S.p.x=Math.max(20,Math.min(W-20,S.p.x));S.p.y=Math.max(40,Math.min(H-40,S.p.y));
-  S.p.f+=0.1*S.p.lvl*S.dt;
-  
-  // Partículas
-  S.particles.forEach(p=>{if(p.life>0){p.x+=p.vx;p.y+=p.vy;p.vy+=0.15;p.life-=S.dt*60}});
-  S.particles=S.particles.filter(p=>p.life>0);
-  
-  // Level up
-  if(S.p.xp>=S.p.lvl*50){S.p.lvl++;S.p.xp=0;audio(990,0.2);spawn(S.p.x,S.p.y,15,'#fa0');document.getElementById('log').textContent=`SISTEMA: ASCENSO NIVEL ${S.p.lvl}`}
-  
-  // Render
-  X.clearRect(0,0,W,H);
-  X.fillStyle=night?'#08080c':'#0d0d12';X.fillRect(0,0,W,H);
-  X.fillStyle=night?'rgba(30,30,50,0.8)':'rgba(20,20,30,0.6)';X.fillRect(0,H-20,W,20);
-  
-  // Sombra
-  X.fillStyle='rgba(0,0,0,0.25)';X.beginPath();X.ellipse(S.p.x,H-20,14*S.p.lvl,5*S.p.lvl,0,0,Math.PI*2);X.fill();
-  
-  // Lobo
-  X.save();X.translate(S.p.x,S.p.y);X.scale(PS*S.p.lvl/2,PS*S.p.lvl/2);X.translate(-5,-5);
-  if(S.p.vx<-0.5)X.scale(-1,1);
-  const bounce=S.p.st==='follow'||S.p.st==='play'?Math.sin(S.p.f*2.5)*0.6:0;
-  const mouth=S.p.st==='eat'&&S.p.t>20?1:0;
-  const leg=(S.p.st==='follow'||S.p.st==='play')?Math.floor(S.p.f*2)%2:0;
-  for(let r=0;r<10;r++)for(let cl=0;cl<10;cl++){
-    const v=B[r][cl];if(!v)continue;
-    const ox=leg&&r>6?(cl%2?0.6:-0.6):0;
-    const oy=mouth&&r>4?(r>5?1:0.4):0;
-    X.fillStyle=COL[v];X.fillRect(cl+ox,r+bounce+oy,1,1);
-  }
-  X.restore();
-  
-  // UI elementos
-  if(S.food){X.fillStyle='#f44';X.beginPath();X.arc(S.food.x,S.food.y,6,0,Math.PI*2);X.fill()}
-  if(S.p.st==='sleep'){X.fillStyle='#fff';X.font='10px monospace';X.fillText('Zzz',S.p.x+12,S.p.y-15)}
-  if(S.pet){X.fillStyle='#fa0';X.font='9px monospace';X.fillText('♥',S.p.x+10,S.p.y-8)}
-  X.globalAlpha=0.8;S.particles.forEach(p=>{X.fillStyle=p.col;X.fillRect(p.x,p.y,p.sz,p.sz)});X.globalAlpha=1;
-  
-  // HUD
-  document.getElementById('st').textContent=S.p.st.toUpperCase();
-  document.getElementById('hg').textContent=Math.floor(S.p.hg);document.getElementById('hgF').style.width=S.p.hg+'%';
-  document.getElementById('pl').textContent=Math.floor(S.p.pl);document.getElementById('plF').style.width=S.p.pl+'%';
-  document.getElementById('eg').textContent=Math.floor(S.p.eg);document.getElementById('egF').style.width=S.p.eg+'%';
-  document.getElementById('xp').textContent=Math.floor(S.p.xp);document.getElementById('lvl').textContent=S.p.lvl;
-  
-  requestAnimationFrame(loop);
-}
-requestAnimationFrame(loop);
+(function(){const e=document.getElementById("wolf-c"),t=e.getContext("2d");t.imageSmoothingEnabled=!1;const n=3,i=[[0,0,1,1,0,0,1,1,0,0],[0,1,1,1,1,1,1,1,1,0],[1,1,2,1,4,4,1,2,1,1],[1,1,1,1,1,1,1,1,1,1],[0,1,1,3,3,1,1,1,1,0],[0,0,1,1,1,1,1,1,0,0],[0,0,0,1,1,1,1,0,0,0],[0,0,0,0,1,1,0,0,0,0],[0,0,0,0,1,0,0,0,0,0],[0,0,0,0,1,0,0,0,0,0]],o={1:"#8a8a9a",2:"#5a5a65",3:"#3a2a2a",4:"#eef"};let a={x:32,y:32,vx:0,vy:0,st:"idle",t:0,f:0,hg:100,pl:100,eg:100},r={x:32,y:32},l=null,s=[],c=!1,u=0,d=!0;document.getElementById("wolf-ctrl").onclick=()=>{d=!d;document.getElementById("wolf-ctrl").textContent=d?"🐺 [MUTE]":"🐺 [ACTIVO]"};e.onmousemove=e=>{const t=e.getBoundingClientRect();r.x=e.clientX-t.left,r.y=e.clientY-t.top};e.onclick=()=>{l||({x:r.x,y:r.y})};e.onmousedown=()=>c=!0;e.onmouseup=()=>c=!1;const p=(e,t)=>{for(let n=0;n<e;n++)s.push({x:a.x,y:a.y,vx:(Math.random()-.5)*2,vy:-Math.random()*2-1,l:30,col:t,sz:2})},m=(e,t)=>{if(d)return;try{const n=new(window.AudioContext||window.webkitAudioContext)(),i=n.createOscillator(),o=n.createGain();i.frequency.value=e,o.gain.value=.02,o.gain.exponentialRampToValueAtTime(1e-3,n.currentTime+t),i.connect(o),o.connect(n.destination),i.start(),i.stop(n.currentTime+t)}catch{}};function h(){if(document.hidden)return void requestAnimationFrame(h);a.f+=.08,a.hg=Math.max(0,a.hg-.02),a.pl=Math.max(0,a.pl-.015),a.eg=Math.max(0,a.eg-.01),c&&(u++,u>15&&(a.pl=Math.min(100,a.pl+10),p(1,"#fa0"),u=0)),l&&(a.vx+=(l.x-a.x)*.06,a.vy+=(l.y-a.y)*.06,a.st="eat",Math.hypot(a.x-l.x,a.y-l.y)<5&&(a.hg=Math.min(100,a.hg+20),l=null,a.st="idle",p(3,"#f44"),m(440,.1))),a.vx+=(r.x-a.x)*.015,a.vy+=(r.y-a.y)*.015,a.st="follow",a.vx*=.85,a.vy*=.85,a.x+=a.vx,a.y+=a.vy,a.x=Math.max(8,Math.min(56,a.x)),a.y=Math.max(8,Math.min(56,a.y)),a.t>0?a.t--:a.st="idle",Math.random()<.004&&"idle"===a.st&&(a.st="scratch",a.t=30),t.clearRect(0,0,64,64),t.save(),t.translate(a.x,a.y),t.scale(n,n),t.translate(-5,-5),a.vx<-.5&&t.scale(-1,1);let e="follow"===a.st?Math.sin(a.f*2)*.4:0,i="follow"===a.st||"scratch"===a.st?Math.floor(2*a.f)%2:0;for(let n=0;n<10;n++)for(let a=0;a<10;a++){let r=i[n][a];if(!r)continue;t.fillStyle=o[r],t.fillRect(a+(i&&n>6?(a%2?.5:-.5):0),n+e,1,1)}if(t.restore(),s.forEach(e=>{e.x+=e.vx,e.y+=e.vy,e.l--,t.fillStyle=e.col,t.globalAlpha=e.l/30,t.fillRect(e.x,e.y,e.sz,e.sz)}),t.globalAlpha=1,s=s.filter(e=>e.l>0),requestAnimationFrame(h)}h()})();
 </script>
+<!-- FIN LOBO_VIRT -->
+
 </body>
 </html>
