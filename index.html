@@ -3,481 +3,354 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>K-9 TACTICAL ASSET // ZYANETRALYS</title>
+<title>K-9 TACTICAL COMPANION // ZYANETRALYS</title>
 <style>
-:root{--bg:#080c11;--panel:rgba(12, 18, 24, 0.85);--hud:#00ff88;--warn:#ffaa00;--alert:#ff3344;--text:#c0c5c9}
-*{box-sizing:border-box;margin:0;padding:0;user-select:none;outline:none}
+:root{--bg:#0a0f14;--panel:rgba(15,20,25,0.75);--hud:#00ff88;--warn:#ffaa00;--alert:#ff3344;--text:#c5cdd4;--shadow:0 8px 30px rgba(0,0,0,0.5)}
+*{box-sizing:border-box;margin:0;padding:0;user-select:none}
 body{background:var(--bg);color:var(--hud);font-family:'Inter',system-ui,monospace;overflow:hidden;height:100vh}
-
-/* Efectos de fondo */
-.grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.03) 1px,transparent 1px);background-size:50px 50px;z-index:0;pointer-events:none}
-.scanline{position:fixed;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0.02) 0%,transparent 5%,rgba(255,255,255,0.02) 100%);z-index:1;pointer-events:none;animation:scrollScanline 4s linear infinite;background-size:100% 50px}
-@keyframes scrollScanline{0%{background-position:0 0}100%{background-position:0 100%}}
-.vignette{position:fixed;inset:0;box-shadow:inset 0 0 150px rgba(0,0,0,0.85);z-index:2;pointer-events:none}
-
-/* HUD */
-canvas{position:fixed;top:0;left:0;z-index:5;image-rendering:pixelated;cursor:crosshair}
+.grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.04) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+canvas{position:fixed;top:0;left:0;z-index:5;cursor:crosshair}
 #ui{position:fixed;top:20px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:flex-start;z-index:10;pointer-events:none}
-.panel{background:var(--panel);border:1px solid rgba(0,255,136,0.2);padding:14px 18px;border-radius:12px;backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(0,0,0,0.4);font-size:0.8rem;min-width:260px}
+.panel{background:var(--panel);border:1px solid rgba(0,255,136,0.2);padding:14px 18px;border-radius:14px;backdrop-filter:blur(14px);box-shadow:var(--shadow);font-size:0.8rem;min-width:240px}
 .stat{display:flex;align-items:center;gap:10px;margin-top:10px}
-.bar-bg{flex:1;height:6px;background:#111820;border-radius:4px;overflow:hidden;border:1px solid #222}
+.bar-bg{flex:1;height:6px;background:#111820;border-radius:4px;overflow:hidden;border:1px solid #2a3035}
 .fill{height:100%;border-radius:4px;transition:width 0.4s cubic-bezier(.4,0,.2,1),background 0.3s}
-#log{position:fixed;bottom:80px;left:20px;width:min(350px,70vw);max-height:120px;overflow-y:auto;font-size:0.7rem;opacity:0.8;z-index:10;scrollbar-width:none}
+#log{position:fixed;bottom:70px;left:20px;width:min(320px,65vw);max-height:90px;overflow-y:auto;font-size:0.65rem;opacity:0.75;z-index:10;scrollbar-width:none}
 #log div{padding:4px 0;border-bottom:1px dashed #333}
 #controls{position:fixed;bottom:20px;right:20px;display:flex;gap:10px;z-index:20}
-button{background:rgba(0,255,136,0.1);border:1px solid var(--hud);color:var(--hud);padding:12px 20px;cursor:pointer;font-family:inherit;text-transform:uppercase;font-size:0.75rem;transition:all 0.2s;border-radius:10px;font-weight:600;letter-spacing:1px}
-button:hover{background:var(--hud);color:#000;transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,255,136,0.3)}
+button{background:rgba(0,255,136,0.1);border:1px solid var(--hud);color:var(--hud);padding:10px 16px;cursor:pointer;font-family:inherit;text-transform:uppercase;font-size:0.7rem;transition:all 0.2s;border-radius:10px;font-weight:600;letter-spacing:0.5px}
+button:hover{background:var(--hud);color:#000;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,255,136,0.25)}
 button:active{transform:translateY(0)}
-.tooltip{position:fixed;background:rgba(0,0,0,0.8);border:1px solid #555;color:#fff;padding:6px 10px;border-radius:6px;font-size:0.7rem;z-index:30;pointer-events:none;opacity:0;transition:opacity 0.2s;white-space:nowrap}
+#cursor-ring{position:fixed;width:28px;height:28px;border:2px solid var(--hud);border-radius:50%;pointer-events:none;z-index:15;transform:translate(-50%,-50%);transition:all 0.15s ease-out;mix-blend-mode:difference}
 </style>
 </head>
 <body>
-
 <div class="grid"></div>
-<div class="scanline"></div>
-<div class="vignette"></div>
 <canvas id="c"></canvas>
-<div id="cursor-ring" style="position:fixed;width:30px;height:30px;border:2px solid var(--hud);border-radius:50%;pointer-events:none;z-index:15;transform:translate(-50%,-50%);transition:width 0.1s, height 0.1s, border-color 0.2s"></div>
-<div class="tooltip" id="tooltip"></div>
+<div id="cursor-ring"></div>
 
 <div id="ui">
   <div class="panel">
-    <div style="font-weight:700;letter-spacing:1px;font-size:0.9rem;margin-bottom:4px">AGENTE: <span id="name" style="color:#fff">K-9 PIXEL</span> | NIVEL: <span id="lvl">1</span></div>
-    <div class="stat">HAMBRE<div class="bar-bg"><div id="hunger" class="fill" style="width:75%;background:var(--hud)"></div></div></div>
-    <div class="stat">ENERGÍA<div class="bar-bg"><div id="energy" class="fill" style="width:85%;background:var(--hud)"></div></div></div>
-    <div class="stat">MORAL<div class="bar-bg"><div id="mood" class="fill" style="width:65%;background:var(--hud)"></div></div></div>
-    <div class="stat">HIGIENE<div class="bar-bg"><div id="hygiene" class="fill" style="width:90%;background:var(--hud)"></div></div></div>
+    <div style="font-weight:700;letter-spacing:1px;font-size:0.9rem">AGENTE: <span style="color:#fff">K-9</span> | NIVEL: <span id="lvl">1</span></div>
+    <div class="stat">HAMBRE<div class="bar-bg"><div id="hunger" class="fill"></div></div></div>
+    <div class="stat">ENERGÍA<div class="bar-bg"><div id="energy" class="fill"></div></div></div>
+    <div class="stat">MORAL<div class="bar-bg"><div id="mood" class="fill"></div></div></div>
+    <div class="stat">HIGIENE<div class="bar-bg"><div id="hygiene" class="fill"></div></div></div>
   </div>
   <div class="panel" style="text-align:right">
-    <div style="font-size:0.85rem;color:#fff">XP: <span id="xp">0</span>/<span id="xpmax">100</span></div>
+    <div style="color:#fff">XP: <span id="xp">0</span>/<span id="xpmax">100</span></div>
     <div style="font-size:0.7rem;opacity:0.6;margin-top:4px">ESTADO: <span id="state-label" style="color:var(--warn)">OBSERVANDO</span></div>
   </div>
 </div>
-
 <div id="log"></div>
 <div id="controls">
-  <button onclick="app.feed()" title="Alimentar al lobo (Recupera Hambre)">🍖 ALIMENTAR</button>
-  <button onclick="app.play()" title="Jugar con el cursor (Recupera Moral)">🎾 JUGAR</button>
-  <button onclick="app.scratch()" title="Hacer click en el lobo para acariciar">✋ RASCAR</button>
-  <button onclick="app.bath()" title="Restaurar higiene">💦 BAÑO</button>
+  <button onclick="app.feed()">🍖 ALIMENTAR</button>
+  <button onclick="app.play()">🎾 JUGAR</button>
+  <button onclick="app.pet()">✋ RASCAR</button>
+  <button onclick="app.bath()">💦 BAÑO</button>
 </div>
 
 <script>
 const app = {
-  cv: null, ctx: null,
+  cv: null, ctx: null, dt: 0, lastT: 0,
   wolf: {
     x: 0, y: 0, vx: 0, vy: 0,
-    dir: 1, state: 'IDLE', frame: 0, frameT: 0,
-    bob: 0, targetX: 0, targetY: 0,
-    sleepT: 0, eyeBlinkT: 0,
-    isTouchingCursor: false
+    dir: 1, state: 'IDLE', targetX: 0, targetY: 0,
+    breath: 0, tail: 0, blinkT: 0, legT: 0,
+    proximity: 0
   },
-  food: { active: false, x: 0, y: 0, timer: 0, bob: 0 },
-  stats: { hunger: 75, energy: 85, mood: 65, hygiene: 90, xp: 0, level: 1, maxXp: 100 },
-  particles: [], floats: [], shake: { intensity: 0 },
-  cursor: { x: 0, y: 0, active: false, moving: false, lastMove: 0 },
-  
-  // Paleta de colores del lobo pixel a pixel
-  P: {
-    '.': null, // Transparente
-    '1': '#1e2328', // Sombra muy oscura (ojos, hocico)
-    '2': '#3a434a', // Gris oscuro (patas, espalda baja)
-    '3': '#5c6b73', // Gris medio (cuerpo base)
-    '4': '#8a9ba5', // Gris claro (vientre, cuello)
-    '5': '#d9e2e8', // Blanco/Gris muy claro (pecho, cara, cola punta)
-    '6': '#f59e0b', // Ambar (ojo)
-    '7': '#a3b5c1'  // Gris azulado (orejas interior)
-  },
+  food: { active: false, x: 0, y: 0, t: 0 },
+  stats: { hunger: 75, energy: 85, mood: 65, hygiene: 90, xp: 0, lvl: 1, maxXp: 100 },
+  particles: [], floats: [], shake: { i: 0 },
+  cursor: { x: 0, y: 0, vx: 0, vy: 0, active: false },
 
   log(m) {
     const d = document.createElement('div');
-    d.innerHTML = `<span style="opacity:0.5; margin-right:5px">[${new Date().toLocaleTimeString()}]</span> ${m}`;
+    d.innerHTML = `<span style="opacity:0.5">[${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'})}]</span> ${m}`;
     document.getElementById('log').prepend(d);
-    if (document.getElementById('log').children.length > 10) document.getElementById('log').lastChild.remove();
-  },
-
-  // DIBUJO PIXEL A PIXEL GARANTIZADO
-  drawWolf(ctx, x, y, scale, state, frame, dir, blink) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(dir * scale, scale);
-    // Ajuste de offset para que las patas toquen el suelo
-    ctx.translate(-16, -22);
-
-    // Grids 16x16: 1=Sombra, 2=GrisOsc, 3=GrisMed, 4=GrisClaro, 5=Blanco, 6=Ojo
-    // Definimos el lobo explícitamente para asegurar que se vea.
-    
-    let frames;
-    if (state === 'SLEEP') {
-        frames = [
-            // Dormido (acostado)
-            "................",
-            "................",
-            "................",
-            "................",
-            "..5555..........", // Orejas acostadas
-            ".55..555........",
-            ".5...5555.......",
-            ".5555555555.....", // Cuerpo bajo
-            ".33333333333....",
-            ".33366333333....", // Ojo cerrado (casi)
-            ".33333333333....",
-            ".33333333333....",
-            ".22222222222....", // Patas ocultas
-            ".22....2222.....",
-            "................",
-            "................"
-        ];
-    } else if (state === 'WALK') {
-        frames = [
-            // Caminando Frame 0
-            "......55........",
-            ".....5..55......",
-            "....5.5...5.....",
-            "...55..5...5....",
-            "..55....5555....",
-            "..55....5665....", // Ojo
-            "..55....5555....",
-            "..3355555553....",
-            ".333333333333...",
-            ".333333333333...",
-            ".444444444444...",
-            ".444......444...",
-            ".222......222...", // Patas
-            ".222......222...",
-            "..............",
-            "..............",
-            // Caminando Frame 1
-            "......55........",
-            ".....5..55......",
-            "....5.5...5.....",
-            "...55..5...5....",
-            "..55....5555....",
-            "..55....5665....", 
-            "..55....5555....",
-            "..3355555553....",
-            ".333333333333...",
-            ".333333333333...",
-            ".444444444444...",
-            ".444......444...",
-            ".222......222...",
-            ".222......222...",
-            "..............",
-            ".............."
-        ];
-    } else {
-        frames = [
-            // IDLE Frame 0
-            "......55........", // Orejas
-            ".....5..55......",
-            "....5.5...5.....",
-            "...55..5...5....",
-            "..55....5555....",
-            "..55....5665....", // Ojo
-            "..55....5555....",
-            "..3355555553....", // Hocico
-            ".333333333333...",
-            ".333333333333...",
-            ".444444444444...",
-            ".444......444...",
-            ".222......222...", // Patas
-            ".222......222...",
-            "..............",
-            ".............."
-        ];
-    }
-
-    // Si hay dos frames en el array (para caminata), alternamos
-    const currentFrameData = state === 'WALK' && frame % 2 === 1 ? frames[1] : frames[0];
-    // En realidad frames es un array de strings, para walk necesitamos un array de arrays. 
-    // Simplifico: uso lógica para detectar caminata.
-    
-    // Renderizado Pixel a Pixel
-    const rows = (state === 'WALK' && frame % 2 === 1) ? frames.slice(17,33) : frames.slice(0,17); 
-    
-    rows.forEach((row, r) => {
-      row.split('').forEach((p, c) => {
-        if (this.P[p]) {
-          ctx.fillStyle = this.P[p];
-          // Píxeles de 1x1 escalados por el contexto
-          ctx.fillRect(c, r, 1, 1);
-        }
-      });
-    });
-
-    // Efecto de parpadeo manual si aplica
-    if (blink && state !== 'SLEEP') {
-        ctx.fillStyle = '#1e2328';
-        ctx.fillRect(5, 11, 2, 1); // Cierra ojo
-    }
-    
-    ctx.restore();
+    if (document.getElementById('log').children.length > 8) document.getElementById('log').lastChild.remove();
   },
 
   updateUI() {
-    ['hunger', 'energy', 'mood', 'hygiene'].forEach(k => {
-      const el = document.getElementById(k);
-      el.style.width = this.stats[k] + '%';
-      el.style.background = this.stats[k] < 20 ? 'var(--alert)' : this.stats[k] < 40 ? 'var(--warn)' : 'var(--hud)';
+    ['hunger','energy','mood','hygiene'].forEach(k => {
+      const el = document.getElementById(k), v = this.stats[k];
+      el.style.width = v + '%';
+      el.style.background = v < 20 ? 'var(--alert)' : v < 40 ? 'var(--warn)' : 'var(--hud)';
     });
     document.getElementById('xp').textContent = Math.floor(this.stats.xp);
     document.getElementById('xpmax').textContent = this.stats.maxXp;
-    document.getElementById('lvl').textContent = this.stats.level;
-    const sLabel = document.getElementById('state-label');
-    sLabel.textContent = this.wolf.state.replace('_', ' ');
-    sLabel.style.color = this.wolf.state === 'EAT' ? 'var(--warn)' : this.wolf.state === 'SLEEP' ? '#aaa' : 'var(--hud)';
+    document.getElementById('lvl').textContent = this.stats.lvl;
+    document.getElementById('state-label').textContent = this.wolf.state.replace('_',' ');
   },
 
   addXp(n) {
     this.stats.xp += n;
     if (this.stats.xp >= this.stats.maxXp) {
-      this.stats.level++;
-      this.stats.xp = 0;
-      this.stats.maxXp = Math.floor(this.stats.maxXp * 1.4);
-      this.log(`⚠️ ASCENSO A NIVEL ${this.stats.level}. PARÁMETROS MEJORADOS.`);
-      this.spawn(this.wolf.x, this.wolf.y - 40, 20, '#ffaa00');
-      this.spawnFloat(this.wolf.x, this.wolf.y - 80, 'LEVEL UP!', '#ffaa00');
-      this.shake.intensity = 6;
-      this.stats.hunger = Math.min(100, this.stats.hunger + 20);
-      this.stats.energy = Math.min(100, this.stats.energy + 20);
+      this.stats.lvl++; this.stats.xp = 0; this.stats.maxXp = Math.floor(this.stats.maxXp * 1.35);
+      this.log(`⚠️ ASCENSO A NIVEL ${this.stats.lvl}. SINCRONIZACIÓN COMPLETA.`);
+      this.spawn(this.wolf.x, this.wolf.y - 40, 18, '#ffaa00');
+      this.floats.push({x:this.wolf.x, y:this.wolf.y-60, text:'LEVEL UP!', col:'#ffaa00', life:1.5, dec:0.01, vy:-1.5});
+      this.shake.i = 5;
+      ['hunger','energy','mood'].forEach(k => this.stats[k] = Math.min(100, this.stats[k] + 20));
     }
-    this.spawnFloat(this.wolf.x, this.wolf.y - 50, `+${n} XP`, '#00ff88');
+    this.floats.push({x:this.wolf.x + (Math.random()-0.5)*20, y:this.wolf.y-40, text:`+${n} XP`, col:'#00ff88', life:1.2, dec:0.015, vy:-1});
     this.updateUI();
   },
 
-  spawn(x, y, n, col) {
-    for (let i = 0; i < n; i++) this.particles.push({
-      x, y, vx: (Math.random() - 0.5) * 4, vy: -Math.random() * 3 - 1,
-      life: 1, decay: 0.02 + Math.random() * 0.02, size: 2 + Math.random() * 4, col, grav: 0.05
+  spawn(x,y,n,col) {
+    for(let i=0;i<n;i++) this.particles.push({
+      x,y, vx:(Math.random()-0.5)*3, vy:-Math.random()*2.5-0.5,
+      life:1, dec:0.02+Math.random()*0.02, sz:2+Math.random()*3, col, grav:0.04
     });
   },
-  
-  spawnFloat(x, y, text, col) {
-    this.floats.push({ x, y, text, col, life: 1.2, decay: 0.015, vy: -0.8 });
-  },
 
-  setSt(s) {
-    this.wolf.state = s;
-    this.wolf.frame = 0;
-    this.wolf.frameT = 0;
-  },
+  setSt(s) { this.wolf.state = s; this.wolf.legT = 0; },
 
   feed() {
-    if (this.wolf.state === 'SLEEP' || this.wolf.state === 'EAT') return;
+    if(this.wolf.state==='SLEEP'||this.wolf.state==='EAT') return;
     this.food.active = true;
-    this.food.x = Math.max(50, Math.min(this.cv.width - 50, this.wolf.x + (Math.random() - 0.5) * 300));
-    this.food.y = Math.max(80, Math.min(this.cv.height * 0.85 - 20, this.wolf.y + (Math.random() > 0.5 ? 50 : -40)));
-    this.food.timer = 400;
+    this.food.x = Math.max(40, Math.min(innerWidth-40, this.wolf.x + (Math.random()-0.5)*250));
+    this.food.y = Math.max(60, Math.min(innerHeight*0.82-10, this.wolf.y + 50 + Math.random()*40));
+    this.food.t = 350;
     this.setSt('EAT');
     this.log('🍖 RACIÓN DESPLEGADA.');
-    this.shake.intensity = 3;
+    this.shake.i = 2;
   },
 
-  scratch() {
-    if (this.wolf.state === 'SLEEP') { this.log('💤 Zzz... Déjalo dormir.'); return; }
-    if (this.wolf.state === 'EAT') { this.log('🍖 Está comiendo, no molestar.'); return; }
+  pet() {
+    if(this.wolf.state==='SLEEP') { this.log('💤 Zzz... déjalo descansar.'); return; }
+    if(this.wolf.state==='EAT') { this.log('🍖 Ocupado. Espera a que termine.'); return; }
     this.setSt('PET');
-    this.stats.mood = Math.min(100, this.stats.mood + 20);
-    this.addXp(10);
-    this.spawn(this.wolf.x, this.wolf.y - 20, 10, '#ff6b6b'); // Corazones
-    this.spawnFloat(this.wolf.x, this.wolf.y - 60, '❤️ +20 MORAL', '#ff6b6b');
-    this.log('✋ RASCADO TÁCTICO APLICADO.');
-    setTimeout(() => { if (this.wolf.state === 'PET') this.setSt('IDLE'); }, 1800);
+    this.stats.mood = Math.min(100, this.stats.mood + 25);
+    this.addXp(12);
+    this.spawn(this.wolf.x, this.wolf.y - 20, 10, '#ff6b6b');
+    this.floats.push({x:this.wolf.x, y:this.wolf.y-50, text:'❤️ +25 MORAL', col:'#ff6b6b', life:1.2, dec:0.01, vy:-1});
+    this.log('✋ RASCADO APLICADO.');
+    setTimeout(()=>{ if(this.wolf.state==='PET') this.setSt('IDLE'); }, 1600);
   },
 
   play() {
-    if (this.stats.energy < 15) { this.log('⚠️ ENERGÍA CRÍTICA. RECHAZADO.'); return; }
+    if(this.stats.energy < 15) { this.log('⚠️ ENERGÍA CRÍTICA. DENEGADO.'); return; }
     this.setSt('CHASE');
     this.stats.energy = Math.max(0, this.stats.energy - 15);
     this.stats.mood = Math.min(100, this.stats.mood + 20);
-    this.addXp(15);
-    this.log('🎾 PROTOCOLO PERSECUCIÓN ACTIVO.');
-    setTimeout(() => { if (this.wolf.state === 'CHASE') this.setSt('IDLE'); }, 3000);
+    this.addXp(18);
+    this.log('🎾 PROTOCOLO PERSECUCIÓN.');
+    setTimeout(()=>{ if(this.wolf.state==='CHASE') this.setSt('IDLE'); }, 2800);
   },
 
   bath() {
-    if (this.stats.hygiene > 80) { this.log('💦 Higiene óptima. Innecesario.'); return; }
+    if(this.stats.hygiene > 85) { this.log('💦 Higiene óptima.'); return; }
     this.stats.hygiene = 100;
-    this.log('🚿 BAÑO COMPLETO. HIGIENE RESTAURADA.');
-    this.spawn(this.wolf.x, this.wolf.y - 20, 25, '#00aaff'); // Burbujas
-    this.spawnFloat(this.wolf.x, this.wolf.y - 60, '💦 HIGIENE MAX', '#00aaff');
-    this.addXp(5);
+    this.spawn(this.wolf.x, this.wolf.y - 15, 20, '#00aaff');
+    this.floats.push({x:this.wolf.x, y:this.wolf.y-50, text:'💦 HIGIENE MAX', col:'#00aaff', life:1.2, dec:0.01, vy:-1});
+    this.log('🚿 BAÑO COMPLETO.');
+    this.addXp(8);
   },
 
-  loop() {
-    this.cv.width = window.innerWidth;
-    this.cv.height = window.innerHeight;
-    
+  // RENDERIZADO OPTIMIZADO Y MODERNO
+  drawWolf(c, w, dt) {
+    c.save();
+    c.translate(w.x, w.y);
+    c.scale(w.dir, 1);
+
+    // Respiración y balanceo suave
+    const breath = Math.sin(w.breath * 1.8) * 1.5;
+    const lean = Math.atan2(w.vy, w.vx) * 0.15;
+    c.rotate(lean);
+
+    // Cola (wag)
+    const tailWag = Math.sin(w.tail * 8) * (w.state==='PET' ? 0.6 : 0.25);
+    c.save(); c.translate(18, -5); c.rotate(tailWag - 0.4);
+    c.fillStyle = '#8a9ba5'; c.beginPath(); c.moveTo(0,0);
+    c.quadraticCurveTo(15, -8, 25, -2); c.lineTo(20, 5); c.quadraticCurveTo(10, 2, 0, 3);
+    c.fill(); c.restore();
+
+    // Patas (ciclo al caminar/correr)
+    const speed = Math.hypot(w.vx, w.vy);
+    const legCycle = w.legT * 6 * (w.state==='CHASE'?1.2:0.8);
+    const legOffset = Math.sin(legCycle) * 4;
+    const legOffset2 = Math.sin(legCycle + Math.PI) * 4;
+
+    // Cuerpo
+    c.fillStyle = '#6b7c85';
+    c.beginPath(); c.ellipse(0, -5, 22, 14, 0, 0, Math.PI*2); c.fill();
+    c.fillStyle = '#d9e2e8'; // Pecho
+    c.beginPath(); c.ellipse(-12, -2, 10, 9, 0, 0, Math.PI*2); c.fill();
+
+    // Cabeza
+    c.fillStyle = '#5c6b73';
+    c.beginPath(); c.ellipse(22, -18 + breath, 14, 12, 0.1, 0, Math.PI*2); c.fill();
+    // Hocico
+    c.fillStyle = '#d9e2e8';
+    c.beginPath(); c.ellipse(32, -15 + breath, 9, 6, 0, 0, Math.PI*2); c.fill();
+    c.fillStyle = '#1e2328'; // Nariz
+    c.beginPath(); c.arc(38, -16 + breath, 3, 0, Math.PI*2); c.fill();
+
+    // Orejas
+    c.fillStyle = '#4a5760';
+    c.beginPath(); c.moveTo(18, -28+breath); c.lineTo(22, -36+breath); c.lineTo(26, -26+breath); c.fill();
+    c.beginPath(); c.moveTo(24, -26+breath); c.lineTo(28, -33+breath); c.lineTo(30, -22+breath); c.fill();
+
+    // Ojos
+    const blink = w.blinkT < 5 ? 0.2 : 1;
+    c.fillStyle = '#111827';
+    c.beginPath(); c.ellipse(26, -20+breath, 3, 4*blink, 0, 0, Math.PI*2); c.fill();
+    c.fillStyle = '#f59e0b'; c.beginPath(); c.arc(26, -20+breath, 1.5, 0, Math.PI*2); c.fill();
+
+    // Patas delanteras/traseras
+    c.fillStyle = '#4a5760';
+    c.beginPath(); c.roundRect(-14, 5, 5, 14 + legOffset, 2); c.fill();
+    c.beginPath(); c.roundRect(-4, 5, 5, 14 + legOffset2, 2); c.fill();
+    c.beginPath(); c.roundRect(8, 5, 5, 14 + legOffset, 2); c.fill();
+    c.beginPath(); c.roundRect(16, 5, 5, 14 + legOffset2, 2); c.fill();
+
+    c.restore();
+  },
+
+  loop(t) {
+    this.dt = (t - this.lastT) / 16.67;
+    this.lastT = t;
+    if(this.dt > 3) { requestAnimationFrame(t => this.loop(t)); return; } // Lag protection
+
     const w = this.wolf;
-    
-    // Decaimiento de stats
-    if (w.state !== 'SLEEP') {
-      this.stats.hunger = Math.max(0, this.stats.hunger - 0.06);
-      this.stats.energy = Math.max(0, this.stats.energy - 0.04);
-      this.stats.hygiene = Math.max(0, this.stats.hygiene - 0.05);
-      this.stats.mood = Math.max(0, this.stats.mood - 0.03);
+    const dt = Math.min(this.dt, 2);
+
+    // Stats decay
+    if(w.state !== 'SLEEP') {
+      this.stats.hunger = Math.max(0, this.stats.hunger - 0.06*dt);
+      this.stats.energy = Math.max(0, this.stats.energy - 0.04*dt);
+      this.stats.hygiene = Math.max(0, this.stats.hygiene - 0.05*dt);
+      this.stats.mood = Math.max(0, this.stats.mood - 0.03*dt);
     } else {
-      this.stats.energy = Math.min(100, this.stats.energy + 0.1); // Recuperar durmiendo
+      this.stats.energy = Math.min(100, this.stats.energy + 0.12*dt);
     }
-    
     this.updateUI();
 
-    // AI y Física
-    w.frameT++;
-    if (w.frameT % 10 === 0) w.frame++;
-    w.bob += 0.08;
-    w.eyeBlinkT++;
-    const blink = (w.eyeBlinkT % 200) > 190; // Parpadeo cada ~3s
+    // Cursor tracking suave
+    this.cursor.vx += (this.cursor.x - this.wolf.x - this.cursor.vx) * 0.1;
+    this.cursor.vy += (this.cursor.y - this.wolf.y - this.cursor.vy) * 0.1;
+    const dist = Math.hypot(this.cursor.x - w.x, this.cursor.y - w.y);
+    w.proximity = Math.max(0, 1 - dist/200);
 
-    let tx = w.x, ty = w.y, speed = 0.1;
+    // Ring cursor
+    const ring = document.getElementById('cursor-ring');
+    ring.style.left = this.cursor.x + 'px'; ring.style.top = this.cursor.y + 'px';
+    ring.style.width = (28 + w.proximity*15) + 'px'; ring.style.height = (28 + w.proximity*15) + 'px';
+    ring.style.borderColor = w.proximity > 0.6 ? 'var(--warn)' : 'var(--hud)';
 
-    // Lógica de Estados
-    if (w.state === 'EAT' && this.food.active) {
-      tx = this.food.x; ty = this.food.y; speed = 0.12;
-      if (Math.hypot(w.x - tx, w.y - ty) < 20) {
+    // AI & Física
+    w.breath += 0.05*dt; w.blinkT += dt; w.tail += dt;
+    if(w.blinkT > 120) w.blinkT = 0;
+
+    let tx = w.x, ty = w.y, spd = 0.08;
+
+    if(w.state === 'EAT' && this.food.active) {
+      tx = this.food.x; ty = this.food.y; spd = 0.12;
+      if(Math.hypot(w.x-tx, w.y-ty) < 25) {
         this.log('✅ RACIÓN CONSUMIDA. HAMBRE +30.');
         this.stats.hunger = Math.min(100, this.stats.hunger + 30);
-        this.addXp(15);
-        this.food.active = false;
-        this.setSt('IDLE');
+        this.addXp(15); this.food.active = false; this.setSt('IDLE');
       }
-    } else if (w.state === 'CHASE') {
-      tx = this.cursor.x; ty = this.cursor.y; speed = 0.18;
-      if (w.frameT > 250) this.setSt('IDLE');
-    } else if (w.state === 'SLEEP') {
-      if (this.stats.energy > 90) this.setSt('IDLE');
+    } else if(w.state === 'CHASE') {
+      tx = this.cursor.x; ty = this.cursor.y; spd = 0.18;
+    } else if(w.state === 'SLEEP') {
+      if(this.stats.energy > 85) this.setSt('IDLE');
     } else {
-      // Lógica IDLE/WANDER
-      if (this.stats.energy < 20) { this.setSt('SLEEP'); }
-      else if (this.stats.hunger < 25 && !this.food.active) {
-        this.spawnFloat(w.x, w.y - 40, '¡HAMBRE!', 'var(--alert)');
-      }
-      else if (w.state === 'PET' || w.state === 'BATH') { speed = 0; }
-      else if (w.frameT % 200 === 0) {
-        w.targetX = Math.max(50, Math.min(this.cv.width - 50, w.x + (Math.random() - 0.5) * 250));
-        w.targetY = Math.max(50, Math.min(this.cv.height * 0.8 - 20, w.y + (Math.random() - 0.5) * 150));
+      if(this.stats.energy < 15) this.setSt('SLEEP');
+      else if(w.state === 'PET' || w.state === 'BATH') spd = 0;
+      else if(w.frame % 180 === 0 && w.state === 'IDLE') {
+        w.targetX = Math.max(40, Math.min(innerWidth-40, w.x + (Math.random()-0.5)*220));
+        w.targetY = Math.max(50, Math.min(innerHeight*0.78-10, w.y + (Math.random()-0.5)*120));
         this.setSt('WANDER');
-      } else if (w.state === 'WANDER') {
-        tx = w.targetX; ty = w.targetY; speed = 0.08;
-        if (Math.hypot(w.x - tx, w.y - ty) < 5) this.setSt('IDLE');
+      } else if(w.state === 'WANDER') {
+        tx = w.targetX; ty = w.targetY; spd = 0.06;
+        if(Math.hypot(w.x-tx, w.y-ty) < 10) this.setSt('IDLE');
       }
     }
 
-    // Interacción con Cursor (Ojos y proximidad)
-    const dx = this.cursor.x - w.x;
-    const dy = this.cursor.y - w.y;
-    const dist = Math.hypot(dx, dy);
-    w.isTouchingCursor = dist < 80;
+    // Movimiento spring
+    w.vx += (tx - w.x) * spd * 0.15;
+    w.vy += (ty - w.y) * spd * 0.15;
+    w.vx *= 0.88; w.vy *= 0.88;
+    w.x += w.vx; w.y += w.vy;
 
-    // Movimiento suave
-    w.vx += (tx - w.x) * speed * 0.2;
-    w.vy += (ty - w.y) * speed * 0.2;
-    w.vx *= 0.85;
-    w.vy *= 0.85;
-    w.x += w.vx;
-    w.y += w.vy;
-
-    // Dirección
-    if (Math.abs(w.vx) > 0.5) w.dir = w.vx > 0 ? 1 : -1;
+    // Dirección y animación piernas
+    if(Math.abs(w.vx) > 0.8) {
+      w.dir = w.vx > 0 ? 1 : -1;
+      w.legT += dt * 0.1;
+    } else w.legT += dt * 0.03;
 
     // Límites
-    w.x = Math.max(50, Math.min(this.cv.width - 50, w.x));
-    w.y = Math.max(60, Math.min(this.cv.height * 0.85 - 40, w.y));
+    w.x = Math.max(40, Math.min(innerWidth-40, w.x));
+    w.y = Math.max(50, Math.min(innerHeight*0.85-40, w.y));
 
-    // Renderizado
+    // RENDER
+    this.cv.width = innerWidth; this.cv.height = innerHeight;
     this.ctx.clearRect(0, 0, this.cv.width, this.cv.height);
-    
-    // Screen shake
-    let sx = 0, sy = 0;
-    if (this.shake.intensity > 0) {
-      sx = (Math.random() - 0.5) * this.shake.intensity;
-      sy = (Math.random() - 0.5) * this.shake.intensity;
-      this.shake.intensity *= 0.88;
-      if (this.shake.intensity < 0.3) this.shake.intensity = 0;
-    }
-    this.ctx.save();
-    this.ctx.translate(sx, sy);
 
     // Suelo
-    this.ctx.strokeStyle = 'rgba(0,255,136,0.15)';
-    this.ctx.lineWidth = 2;
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, this.cv.height * 0.85);
-    this.ctx.lineTo(this.cv.width, this.cv.height * 0.85);
-    this.ctx.stroke();
+    this.ctx.strokeStyle = 'rgba(0,255,136,0.12)'; this.ctx.lineWidth = 2;
+    this.ctx.beginPath(); this.ctx.moveTo(0, innerHeight*0.85); this.ctx.lineTo(innerWidth, innerHeight*0.85); this.ctx.stroke();
 
-    // Sombra dinámica
-    const shadowH = w.state === 'SLEEP' ? 2 : Math.sin(w.bob) * 4;
-    this.ctx.fillStyle = 'rgba(0,0,0,0.4)';
-    this.ctx.beginPath();
-    this.ctx.ellipse(w.x, w.y + 20 + shadowH, 25, 6, 0, 0, Math.PI * 2);
-    this.ctx.fill();
+    // Sombra
+    this.ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    this.ctx.beginPath(); this.ctx.ellipse(w.x, w.y+18, 24, 5, 0, 0, Math.PI*2); this.ctx.fill();
 
-    // Dibujar Lobo (Escala 6x para que se vea grande y claro)
-    this.drawWolf(this.ctx, w.x, w.y - 15 + Math.sin(w.bob) * 2, 6, w.state, w.frame, w.dir, blink);
-
-    // Dibujar Comida
-    if (this.food.active) {
-      this.food.bob += 0.1;
-      this.ctx.fillStyle = '#8b5a2b';
-      this.ctx.fillRect(this.food.x - 6, this.food.y - 6 + Math.sin(this.food.bob) * 4, 12, 12);
-      this.ctx.fillStyle = '#f59e0b';
-      this.ctx.fillRect(this.food.x - 4, this.food.y - 4 + Math.sin(this.food.bob) * 4, 8, 8);
+    // Shake
+    if(this.shake.i > 0.1) {
+      this.ctx.translate((Math.random()-0.5)*this.shake.i, (Math.random()-0.5)*this.shake.i);
+      this.shake.i *= 0.88;
     }
 
-    // Partículas
-    this.particles.forEach(p => {
-      p.x += p.vx; p.y += p.vy; p.vy += p.grav; p.life -= p.decay;
-      this.ctx.globalAlpha = Math.max(0, p.life);
-      this.ctx.fillStyle = p.col;
-      this.ctx.fillRect(p.x, p.y, p.size, p.size);
-    });
+    this.drawWolf(this.ctx, w, dt);
 
-    // Textos flotantes
-    this.floats.forEach(f => {
-      f.y += f.vy; f.life -= f.decay;
-      this.ctx.globalAlpha = Math.max(0, f.life);
-      this.ctx.fillStyle = f.col;
-      this.ctx.font = 'bold 14px Inter, system-ui';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(f.text, f.x, f.y);
-    });
+    // Comida
+    if(this.food.active) {
+      this.food.t -= dt;
+      const bob = Math.sin(this.food.t*0.2)*3;
+      this.ctx.fillStyle = '#7a5c4a'; this.ctx.fillRect(this.food.x-5, this.food.y-5+bob, 10, 10);
+      this.ctx.fillStyle = '#f59e0b'; this.ctx.fillRect(this.food.x-3, this.food.y-3+bob, 6, 6);
+      if(this.food.t <= 0) this.food.active = false;
+    }
 
-    this.ctx.globalAlpha = 1;
-    this.ctx.restore();
+    // Partículas & Textos
+    for(let i=this.particles.length-1;i>=0;i--){
+      const p=this.particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=p.grav; p.life-=p.dec;
+      this.ctx.globalAlpha=Math.max(0,p.life); this.ctx.fillStyle=p.col;
+      this.ctx.fillRect(p.x,p.y,p.sz,p.sz);
+      if(p.life<=0) this.particles.splice(i,1);
+    }
+    for(let i=this.floats.length-1;i>=0;i--){
+      const f=this.floats[i]; f.y+=f.vy; f.life-=f.dec;
+      this.ctx.globalAlpha=Math.max(0,f.life); this.ctx.fillStyle=f.col;
+      this.ctx.font='bold 13px Inter, system-ui'; this.ctx.textAlign='center';
+      this.ctx.fillText(f.text,f.x,f.y);
+      if(f.life<=0) this.floats.splice(i,1);
+    }
+    this.ctx.globalAlpha=1;
 
-    requestAnimationFrame(() => this.loop());
+    requestAnimationFrame(t => this.loop(t));
   },
 
   init() {
     this.cv = document.getElementById('c');
     this.ctx = this.cv.getContext('2d');
-    this.ctx.imageSmoothingEnabled = false;
-    
-    window.addEventListener('resize', () => { this.cv.width = window.innerWidth; this.cv.height = window.innerHeight; });
-    
-    this.wolf.x = window.innerWidth / 2;
-    this.wolf.y = window.innerHeight * 0.7;
-    
+    this.lastT = performance.now();
+    window.addEventListener('resize', () => { this.cv.width = innerWidth; this.cv.height = innerHeight; });
+    this.cv.width = innerWidth; this.cv.height = innerHeight;
+
+    this.wolf.x = innerWidth/2; this.wolf.y = innerHeight*0.75;
     document.addEventListener('mousemove', e => {
-      this.cursor.x = e.clientX; this.cursor.y = e.clientY;
-      this.cursor.moving = true; this.cursor.lastMove = Date.now();
-      
-      // Efecto cursor
-      const ring = document.getElementById('cursor-ring');
-      ring.style.left = this.cursor.x + 'px'; ring.style.top = this.cursor.y + 'px';
-      ring.style.borderColor = this.wolf.isTouchingCursor ? 'var(--warn)' : 'var(--hud)';
-      ring.style.width = this.wolf.isTouchingCursor ? '40px' : '30px';
-      ring.style.height = this.wolf.isTouchingCursor ? '40px' : '30px';
+      this.cursor.x = e.clientX; this.cursor.y = e.clientY; this.cursor.active = true;
+    });
+    document.addEventListener('click', e => {
+      const d = Math.hypot(e.clientX - this.wolf.x, e.clientY - (this.wolf.y-15));
+      if(d < 60) this.pet();
     });
 
-    document.addEventListener('mousedown', e => {
-      const dist = Math.hypot(e.clientX - this.wolf.x, e.clientY - (this.wolf.y - 20));
-      if (dist < 60) this.scratch();
-    });
-    
     this.log('🟢 SISTEMA INICIADO. K-9 ACTIVO.');
-    this.loop();
+    requestAnimationFrame(t => this.loop(t));
   }
 };
 app.init();
